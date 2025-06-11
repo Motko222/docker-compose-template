@@ -10,7 +10,7 @@ version=$()
 docker_status=$(docker inspect $CONTAINER | jq -r .[].State.Status)
 
 status="ok"
-[ errors -gt 100 ] && status="warning" && message="too many errors ($errors/h)"
+[ $errors -gt 100 ] && status="warning" && message="too many errors ($errors/h)"
 [ "$docker_status" != "running" ] && status="error" && message="docker not running ($docker_status)"
 
 cat >$json << EOF
