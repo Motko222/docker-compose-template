@@ -9,17 +9,16 @@ source $path/env
 version=$()
 docker_status=$(docker inspect $CONTAINER | jq -r .[].State.Status)
 
-case $docker_status in
-  running) status="ok" ;;
-  *) status="error"; message="docker not running ($docker_status)" ;;
-esac
+status="ok"
+[ errors -gt 100 ] && status="warning" && message="too many errors ($errors/h)"
+[ "$docker_status" != "running" ] && status="error" && message="docker not running ($docker_status)"
 
 cat >$json << EOF
 {
   "updated":"$(date --utc +%FT%TZ)",
   "measurement":"report",
   "tags": {
-         "id":"$folder",
+         "id":"$folder-ID",
          "machine":"$MACHINE",
          "grp":"node",
          "owner":"$OWNER"
@@ -29,7 +28,15 @@ cat >$json << EOF
         "chain":"$CHAIN",
         "status":"$status",
         "message":"$message",
-        "version":"$version"
+        "version":"$version",
+        "height":"$height",
+        "errors":"$errors",
+        "m1":"$m1",
+        "m2":"$m2",
+        "m3":"$m3",
+        "url":"$url",
+        "url2":"$url2",
+        "url3":"$url3"
   }
 }
 EOF
